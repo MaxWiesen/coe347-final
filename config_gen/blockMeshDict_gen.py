@@ -37,26 +37,21 @@ def mesh():
 
     sf = 250
     vert1 = x_nozz[-1] / x_nozz.max() * sf * 3
-    cross1 = y_nozz[1] / y_nozz.max() * sf * 1.5
     vert2 = (1 - x_nozz[-1] / x_nozz.max()) * sf
-    cross2 = (1 - y_nozz[1] / y_nozz.max()) * sf
+    cross = y_nozz[1] / y_nozz.max() * sf * 1.5
+
     block_dict = {
-        'half1': {'vertices': np.array([1, 2, 5, 6]), 'cells': (vert1, cross1), 'grading': (4, 1)},
-        'half2': {'vertices': np.array([5, 6, 7, 8]), 'cells': (vert2, cross1), 'grading': (1, 1)},
-        'nozzle': {'vertices': np.array([2, 3, 4, 5]), 'cells': (vert1, cross2), 'grading': (4, 1)},
-        'opening': {'vertices': np.array([4, 5, 8, 9]), 'cells': (vert2, cross2), 'grading': (1, 1)}
+        'nozzle': {'vertices': np.array([0, 1, 2, 5]), 'cells': (vert1, cross), 'grading': (4, 1)},
+        'opening': {'vertices': np.array([2, 3, 4, 5]), 'cells': (vert2, cross), 'grading': (1, 1)}
     }
 
     vertices = [
-        (0, 0),                         # 1
-        (0, y_nozz.min()),              # 2
-        (0, y_nozz.max()),              # 3
-        (x_nozz.max(), y_nozz.max()),   # 4
-        (x_nozz.max(), y_nozz.min()),   # 5
-        (x_nozz.max(), 0),              # 6
-        (x_grid_max, 0),                # 7
-        (x_grid_max, y_nozz.min()),     # 8
-        (x_grid_max, y_nozz.max())      # 9
+        (0, 0),                         # 0
+        (0, y_nozz.min()),              # 1
+        (x_nozz.max(), y_nozz.max()),   # 2
+        (x_grid_max, y_nozz.max()),     # 3
+        (x_grid_max, 0),                # 4
+        (x_nozz.max(), 0),              # 5
     ]
 
     with open('blockMeshDict', 'w') as f:
@@ -90,12 +85,12 @@ blocks
 
 edges
 (
-    simpleSpline 2 4 
+    spline 2 4 
     (
 ''')
         nozzle = np.array([(x_noz := x_nozz[1:-1]), y_nozz[1:-1], np.ones(len(x_noz)) * -5.00000e-02])
         f.write(str(nozzle.T)[1:-1].replace('[', '\t\t(').replace(']', ')'))
-        f.write('\n\t)\n\n\tsimpleSpline 11 13 \n\t(\n')
+        f.write('\n\t)\n\n\tspline 11 13 \n\t(\n')
         nozzle[2, :] *= -1
         f.write(str(nozzle.T)[1:-1].replace('[', '\t\t(').replace(']', ')'))
         f.write('\n\t)\n)')
