@@ -93,7 +93,7 @@ edges
         f.write('\n\t)\n\n\tspline 7 8 \n\t(\n')
         nozzle[2, :] *= -1
         f.write(str(nozzle.T)[1:-1].replace('[', '\t\t(').replace(']', ')'))
-        f.write('\n\t)\n)')
+        f.write('\n\t)\n)\n\n')
         with open('faces.txt', 'r') as faces:
             f.write(faces.read())
 
