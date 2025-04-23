@@ -36,9 +36,9 @@ def mesh():
     plt.show()
 
     sf = 250
-    vert1 = x_nozz[-1] / x_nozz.max() * sf * 3
-    vert2 = (1 - x_nozz[-1] / x_nozz.max()) * sf
-    cross = y_nozz[1] / y_nozz.max() * sf * 1.5
+    vert1 = round(x_nozz[-1] / x_nozz.max() * sf * 3)
+    vert2 = round((1 - x_nozz[-1] / x_grid_max) * sf)
+    cross = round(y_nozz[1] / y_nozz.max() * sf * 1.5)
 
     block_dict = {
         'nozzle': {'vertices': np.array([0, 1, 2, 5]), 'cells': (vert1, cross), 'grading': (4, 1)},
@@ -72,25 +72,25 @@ vertices
         for ind, (x, y) in enumerate(vertices):
             f.write(f'\t({x:.16e} {y:.16e} -5.0000000000000003e-02) // {ind}\n')
         for ind, (x, y) in enumerate(vertices):
-            f.write(f'\t({x:.16e} {y:.16e}  5.0000000000000003e-02) // {ind + 9}\n')
+            f.write(f'\t({x:.16e} {y:.16e}  5.0000000000000003e-02) // {ind + 6}\n')
         f.write(''');
 
 blocks
 (''')
         for ind, (block, info) in enumerate(block_dict.items()):
             f.write(f'\t// Block {ind}\n')
-            f.write(f'\thex ({str(info["vertices"])[1:-1]} {str(info["vertices"] + 9)[1:-1]}) ({(ns := info["cells"])[0]} {ns[1]} 1) simpleGrading ( {(gs := info["grading"])[0]} {gs[1]} 1)\n\n')
+            f.write(f'\thex ({str(info["vertices"])[1:-1]} {str(info["vertices"] + 6)[1:-1]}) ({(ns := info["cells"])[0]} {ns[1]} 1) simpleGrading ( {(gs := info["grading"])[0]} {gs[1]} 1)\n\n')
         f.write('''
 );
 
 edges
 (
-    spline 2 4 
+    spline 1 2
     (
 ''')
         nozzle = np.array([(x_noz := x_nozz[1:-1]), y_nozz[1:-1], np.ones(len(x_noz)) * -5.00000e-02])
         f.write(str(nozzle.T)[1:-1].replace('[', '\t\t(').replace(']', ')'))
-        f.write('\n\t)\n\n\tspline 11 13 \n\t(\n')
+        f.write('\n\t)\n\n\tspline 7 8 \n\t(\n')
         nozzle[2, :] *= -1
         f.write(str(nozzle.T)[1:-1].replace('[', '\t\t(').replace(']', ')'))
         f.write('\n\t)\n)')
