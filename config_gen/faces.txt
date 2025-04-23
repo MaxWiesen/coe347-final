@@ -16,12 +16,19 @@ boundary
             (3 9 10 4)  // 3
         );
     }
-    ceiling
+    nozzleCeiling
     {
         type wall;
         faces
         (
             (1 7 8 2)  // 1
+        );
+    }
+    ambientCeiling
+    {
+        type patch;
+        faces
+        (
             (2 8 9 3)  // 2
         );
     }
@@ -32,6 +39,24 @@ boundary
         (
             (0 6 11 5)  // 5
             (5 11 10 4)  // 4
+        );
+    }
+    front
+    {
+        type wedge;
+        faces
+        (
+            (0 1 2 5)  // 6
+            (5 2 3 4)  // 7
+        );
+    }
+    back
+    {
+        type wedge;
+        faces
+        (
+            (6 7 8 11)  // 8
+            (11 8 9 10)  // 9
         );
     }
 );

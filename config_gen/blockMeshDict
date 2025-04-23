@@ -104,4 +104,65 @@ edges
  		(5.11670000e-01 9.61509660e-01 5.00000000e-02)
  		(6.45970000e-01 1.00000000e+00 5.00000000e-02)
 	)
-)
+)boundary
+(
+    inlet
+    {
+        type patch;
+        faces
+        (
+            (1 7 6 0)  // 0
+        );
+    }
+    outlet
+    {
+        type patch;
+        faces
+        (
+            (3 9 10 4)  // 3
+        );
+    }
+    nozzleCeiling
+    {
+        type wall;
+        faces
+        (
+            (1 7 8 2)  // 1
+        );
+    }
+    ambientCeiling
+    {
+        type patch;
+        faces
+        (
+            (2 8 9 3)  // 2
+        );
+    }
+    bottom
+    {
+        type symmetryPlane;
+        faces
+        (
+            (0 6 11 5)  // 5
+            (5 11 10 4)  // 4
+        );
+    }
+    front
+    {
+        type wedge;
+        faces
+        (
+            (0 1 2 5)  // 6
+            (5 2 3 4)  // 7
+        );
+    }
+    back
+    {
+        type wedge;
+        faces
+        (
+            (6 7 8 11)  // 8
+            (11 8 9 10)  // 9
+        );
+    }
+);
