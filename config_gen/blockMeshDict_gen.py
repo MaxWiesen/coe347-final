@@ -94,6 +94,12 @@ edges
         nozzle[2, :] *= -1
         f.write(str(nozzle.T)[1:-1].replace('[', '\t\t(').replace(']', ')'))
         f.write('\n\t)\n)')
+        with open('faces.txt', 'r') as faces:
+            f.write(faces.read())
+
+
+
+
 
 def main():
     mesh()
