@@ -79,7 +79,9 @@ blocks
 (''')
         for ind, (block, info) in enumerate(block_dict.items()):
             f.write(f'\t// Block {ind}\n')
-            f.write(f'\thex ({str(info["vertices"])[1:-1]} {str(info["vertices"] + 6)[1:-1]}) ({(ns := info["cells"])[0]} {ns[1]} 1) simpleGrading ( {(gs := info["grading"])[0]} {gs[1]} 1)\n\n')
+            verts = info["vertices"]
+            verts[-2], verts[-1] = verts[-1], verts[-2]
+            f.write(f'\thex ({str(verts)[1:-1]} {str(verts + 6)[1:-1]}) ({(ns := info["cells"])[0]} {ns[1]} 1) simpleGrading ( {(gs := info["grading"])[0]} {gs[1]} 1)\n\n')
         f.write('''
 );
 
@@ -96,9 +98,6 @@ edges
         f.write('\n\t)\n)\n\n')
         with open('faces.txt', 'r') as faces:
             f.write(faces.read())
-
-
-
 
 
 def main():
