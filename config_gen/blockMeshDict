@@ -113,7 +113,7 @@ boundary
         type patch;
         faces
         (
-            (1 0 6 7)  // 0
+            (1 7 6 0)  // 0
         );
     }
     outlet
@@ -121,7 +121,7 @@ boundary
         type patch;
         faces
         (
-            (3 4 10 9)  // 3
+            (4 10 9 3)  // 3
         );
     }
     nozzleCeiling
@@ -163,8 +163,8 @@ boundary
         type wedge;
         faces
         (
-            (7 6 11 8)  // 8
-            (8 11 10 9)  // 9
+            (7 8 11 6)  // 8
+            (8 9 10 11)  // 9
         );
     }
 );
