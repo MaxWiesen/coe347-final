@@ -83,6 +83,8 @@ blocks
             if ind == 0:
                 verts[-2], verts[-1] = verts[-1], verts[-2]
                 verts[0], verts[1] = verts[1], verts[0]
+            elif ind == 1:
+                verts[1], verts[-1] = verts[-1], verts[1]
             f.write(f'\thex ({str(verts)[1:-1]} {str(verts + 6)[1:-1]}) ({(ns := info["cells"])[0]} {ns[1]} 1) simpleGrading ( {(gs := info["grading"])[0]} {gs[1]} 1)\n\n')
         f.write('''
 );
