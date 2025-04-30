@@ -80,8 +80,9 @@ blocks
         for ind, (block, info) in enumerate(block_dict.items()):
             f.write(f'\t// Block {ind}\n')
             verts = info["vertices"]
-            verts[-2], verts[-1] = verts[-1], verts[-2]
-            verts[0], verts[1] = verts[1], verts[0]
+            if ind == 0:
+                verts[-2], verts[-1] = verts[-1], verts[-2]
+                verts[0], verts[1] = verts[1], verts[0]
             f.write(f'\thex ({str(verts)[1:-1]} {str(verts + 6)[1:-1]}) ({(ns := info["cells"])[0]} {ns[1]} 1) simpleGrading ( {(gs := info["grading"])[0]} {gs[1]} 1)\n\n')
         f.write('''
 );
