@@ -134,8 +134,8 @@ blocks
         for ind, (block, info) in enumerate(block_dict.items()):
             f.write(f'\t// Block {ind}\n')
             
-            bottom = info['vertices'][:, 0]
-            top    = info['vertices'][:, 1]
+            bottom = info['vertices'][0, :]
+            top    = info['vertices'][1, :]
 
             # Update vertex indices to account for removed duplicates
             # For vertices > 6, subtract 5 since we removed vertices 6, 9, 10, and 11
