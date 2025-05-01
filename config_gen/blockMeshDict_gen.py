@@ -24,27 +24,23 @@ def mesh():
         x_nozz = np.append(x_nozz, 2 * x_nozz[-1] - x_nozz[-2] + 4.5)
         y_nozz = np.append(y_nozz, 13.354)
 
-    throat_prop = y_nozz[0] / y_nozz.max()
-    length_prop = x_nozz.max() / x_extent
-
-    x_nozz = (x_nozz - x_nozz.min()) / (x_nozz.max() - x_nozz.min()) * length_prop
-    y_nozz = throat_prop + (y_nozz - y_nozz.min()) / (y_nozz.max() - y_nozz.min()) * (1 - throat_prop)
-
-    ax.scatter(x_nozz, y_nozz)
-    ax.grid()
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    plt.show()
-
-    sf = 250
+    # Scale coordinates to maintain proper proportions
+    x_scale = x_extent / x_nozz.max()
+    y_scale = 1.0  # Keep original y-scaling
+    
+    x_nozz = x_nozz * x_scale
+    y_nozz = y_nozz * y_scale
+    
+    # Ensure proper grid spacing
+    sf = 100  # Reduced scale factor for more manageable cell sizes
     L_nozz = x_nozz[-1]
     L_open = x_grid_max - L_nozz
 
-    total_cells = 3*sf
+    total_cells = 2*sf  # Reduced total cells for better stability
     vert1 = round(L_nozz / x_grid_max * total_cells)
     vert2 = total_cells - vert1
-    cross = round(y_nozz[0] / y_nozz.max() * sf)
-
+    cross = round(sf/2)  # Fixed cross-sectional cells for better stability
+    
     block_dict = {
         'nozzle': {'vertices': np.array([0, 1, 2, 5]), 'cells': (cross, vert1), 'grading': (1, 1)},
         'opening': {'vertices': np.array([2, 3, 4, 5]), 'cells': (cross, vert2), 'grading': (1, 1)}
@@ -52,12 +48,18 @@ def mesh():
 
     vertices = [
         (0, 0),                         # 0
-        (0, y_nozz.min()),              # 1
-        (x_nozz.max(), y_nozz.max()),   # 2
-        (x_grid_max, y_nozz.max()),     # 3
-        (x_grid_max, 0),                # 4
-        (x_nozz.max(), 0),              # 5
-    ] 
+        (0, y_nozz[0]),                 # 1
+        (L_nozz, y_nozz[-1]),          # 2
+        (x_grid_max, y_nozz[-1]),      # 3
+        (x_grid_max, 0),               # 4
+        (L_nozz, 0),                   # 5
+    ]
+
+    ax.scatter(x_nozz, y_nozz)
+    ax.grid()
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    plt.show()
 
     with open('blockMeshDict', 'w') as f:
         f.write(f'// COE 347 - FINAL PROJECT MESH ({config})')
