@@ -40,16 +40,16 @@ def mesh():
     vert2 = total_cells - vert1
     cross = round(sf/2)  # Cells in y-direction
     
-    # Define vertices in counter-clockwise order for proper face orientation
+    # Define vertices in complete clockwise order starting from bottom left
     vertices = [
-        (0, 0),                         # 0
-        (0, y_nozz[0]),                 # 1
-        (L_nozz, y_nozz[-1]),          # 2
-        (x_grid_max, y_nozz[-1]),      # 3
-        (x_grid_max, 0),               # 4
-        (L_nozz, 0),                   # 5
+        (0, 0),                         # 0: bottom left
+        (0, y_nozz[0]),                 # 1: top left
+        (L_nozz, y_nozz[-1]),          # 2: top at nozzle exit
+        (x_grid_max, y_nozz[-1]),       # 3: top right
+        (x_grid_max, 0),                # 4: bottom right
+        (L_nozz, 0),                    # 5: bottom at nozzle exit
     ]
-    
+
     # Plot the nozzle shape and vertices
     ax.plot(x_nozz, y_nozz, 'b-', label='Nozzle Profile')
     ax.scatter([v[0] for v in vertices], [v[1] for v in vertices], color='red', label='Mesh Vertices')
@@ -95,12 +95,12 @@ def mesh():
     
     block_dict = {
     'nozzle': {
-        'vertices': np.array([0, 5, 2, 1]),
+        'vertices': np.array([[0, 5, 5, 0], [1, 2, 7, 6]]),
         'cells':    (cross, vert1),
         'grading':  (1, 1)
     },
     'opening': {
-        'vertices': np.array([5, 4, 3, 2]),
+        'vertices': np.array([[5, 4, 4, 5], [2, 3, 8, 7]]),
         'cells':    (cross, vert2),
         'grading':  (1, 1)
     }
@@ -122,10 +122,10 @@ convertToMeters 1.0;
 vertices
 (\n''')
         # Write bottom vertices
-        for ind, (x, y) in enumerate(vertices):
+        for ind, (x, y) in enumerate(vertices[:6]):
             f.write(f'\t({x:.16e} {y * np.cos(theta / 2):.16e} {-y * np.sin(theta / 2):.16e}) // {ind}\n')
-        # Write top vertices
-        for ind, (x, y) in enumerate(vertices):
+        # Write top vertices (excluding duplicates - only vertices 1-3)
+        for ind, (x, y) in enumerate(vertices[1:4]):
             f.write(f'\t({x:.16e} {y * np.cos(theta / 2):.16e} {y * np.sin(theta / 2):.16e}) // {ind + 6}\n')
         f.write(''');
 
@@ -134,22 +134,18 @@ blocks
         for ind, (block, info) in enumerate(block_dict.items()):
             f.write(f'\t// Block {ind}\n')
             
-            bottom = info['vertices']
-            top    = bottom + 6
+            bottom = info['vertices'][:, 0]
+            top    = info['vertices'][:, 1]
 
-            vertex_str = (
-                f"({bottom[0]} {bottom[1]} {bottom[2]} {bottom[3]} "
-                f"{top[0]}    {top[1]}    {top[2]}    {top[3]})"
-            )
+            # Update vertex indices to account for removed duplicates
+            # For vertices > 6, subtract 5 since we removed vertices 6, 9, 10, and 11
+            bottom = [b if b < 6 else b-5 for b in bottom]
+            top = [t if t < 6 else t-5 for t in top]
 
-            f.write(f"\thex {vertex_str} "
+            f.write(f"\thex ({' '.join(map(str, bottom))}) ({' '.join(map(str, top))}) "
                     f"({(ns := info['cells'])[0]} {ns[1]} 1) "
                     f"simpleGrading ({(gs := info['grading'])[0]} {gs[1]} 1)\n\n")
             
-            # # Write vertices in proper order for hex block
-            # vertex_str = f'({bottom_face[0]} {bottom_face[1]} {bottom_face[2]} {bottom_face[3]} {top_face[0]} {top_face[1]} {top_face[2]} {top_face[3]})'
-            # f.write(f'\thex {vertex_str} ({(ns := info["cells"])[0]} {ns[1]} 1) simpleGrading ({(gs := info["grading"])[0]} {gs[1]} 1)\n\n')
-        
         f.write('''
 );
 
@@ -170,13 +166,21 @@ edges
         f.write('\t\t)\n\n')
 
         # write upper spline
-        f.write('\t\tspline 7 8\n\t\t(\n')
+        f.write('\t\tspline 6 7\n\t\t(\n')
         for x, y_r, z in zip(x_coords, y_rot, z_upper):
             f.write(f'\t\t({x:.8e} {y_r:.8e} {z:.8e})\n')
         f.write('\n\t)\n);\n\n')
         with open('faces.txt', 'r') as faces:
             f.write(faces.read())
-
+    # bottom
+    # {
+    #     type symmetryPlane;
+    #     faces
+    #     (
+    #         (0 5 11 6)
+    #         (5 4 10 11)
+    #     );
+    # }
 
 def main():
     mesh()
