@@ -96,12 +96,12 @@ def mesh():
     block_dict = {
     'nozzle': {
         'vertices': np.array([[0, 5, 5, 0], [1, 2, 7, 6]]),
-        'cells':    (cross, vert1),
+        'cells':    (vert1, cross),
         'grading':  (1, 1)
     },
     'opening': {
         'vertices': np.array([[5, 4, 4, 5], [2, 3, 8, 7]]),
-        'cells':    (cross, vert2),
+        'cells':    (vert2, cross),
         'grading':  (1, 1)
     }
 }
