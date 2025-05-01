@@ -93,19 +93,18 @@ def mesh():
     ax.set_xlim(-1, x_grid_max + 1)
     plt.show()
     
-    # Redefine blocks with proper vertex ordering
     block_dict = {
-        'nozzle': {
-            'vertices': np.array([0, 1, 2, 5]),  # Counter-clockwise bottom face
-            'cells': (cross, vert1),
-            'grading': (1, 1)
-        },
-        'opening': {
-            'vertices': np.array([5, 2, 3, 4]),  # Counter-clockwise bottom face
-            'cells': (cross, vert2),
-            'grading': (1, 1)
-        }
+    'nozzle': {
+        'vertices': np.array([0, 5, 2, 1]),
+        'cells':    (cross, vert1),
+        'grading':  (1, 1)
+    },
+    'opening': {
+        'vertices': np.array([5, 4, 3, 2]),
+        'cells':    (cross, vert2),
+        'grading':  (1, 1)
     }
+}
 
     with open('blockMeshDict', 'w') as f:
         f.write(f'// COE 347 - FINAL PROJECT MESH ({config})')
@@ -134,14 +133,22 @@ blocks
 (''')
         for ind, (block, info) in enumerate(block_dict.items()):
             f.write(f'\t// Block {ind}\n')
-            verts = info["vertices"]
-            # Create hex block with proper vertex ordering
-            bottom_face = verts
-            top_face = verts + 6
             
-            # Write vertices in proper order for hex block
-            vertex_str = f'({bottom_face[0]} {bottom_face[1]} {bottom_face[2]} {bottom_face[3]} {top_face[0]} {top_face[1]} {top_face[2]} {top_face[3]})'
-            f.write(f'\thex {vertex_str} ({(ns := info["cells"])[0]} {ns[1]} 1) simpleGrading ({(gs := info["grading"])[0]} {gs[1]} 1)\n\n')
+            bottom = info['vertices']
+            top    = bottom + 6
+
+            vertex_str = (
+                f"({bottom[0]} {bottom[1]} {bottom[2]} {bottom[3]} "
+                f"{top[0]}    {top[1]}    {top[2]}    {top[3]})"
+            )
+
+            f.write(f"\thex {vertex_str} "
+                    f"({(ns := info['cells'])[0]} {ns[1]} 1) "
+                    f"simpleGrading ({(gs := info['grading'])[0]} {gs[1]} 1)\n\n")
+            
+            # # Write vertices in proper order for hex block
+            # vertex_str = f'({bottom_face[0]} {bottom_face[1]} {bottom_face[2]} {bottom_face[3]} {top_face[0]} {top_face[1]} {top_face[2]} {top_face[3]})'
+            # f.write(f'\thex {vertex_str} ({(ns := info["cells"])[0]} {ns[1]} 1) simpleGrading ({(gs := info["grading"])[0]} {gs[1]} 1)\n\n')
         
         f.write('''
 );
