@@ -37,9 +37,13 @@ def mesh():
     plt.show()
 
     sf = 250
-    vert1 = round(x_nozz[-1] / x_nozz.max() * sf * 3)
-    vert2 = round((1 - x_nozz[-1] / x_grid_max) * sf)
-    cross = round(y_nozz[1] / y_nozz.max() * sf * 1.5)
+    L_nozz = x_nozz[-1]
+    L_open = x_grid_max - L_nozz
+
+    total_cells = 3*sf
+    vert1 = round(L_nozz / x_grid_max * total_cells)
+    vert2 = total_cells - vert1
+    cross = round(y_nozz[0] / y_nozz.max() * sf)
 
     block_dict = {
         'nozzle': {'vertices': np.array([0, 1, 2, 5]), 'cells': (cross, vert1), 'grading': (4, 1)},
