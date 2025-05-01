@@ -42,8 +42,8 @@ def mesh():
     cross = round(y_nozz[1] / y_nozz.max() * sf * 1.5)
 
     block_dict = {
-        'nozzle': {'vertices': np.array([0, 1, 2, 5]), 'cells': (vert1, cross), 'grading': (4, 1)},
-        'opening': {'vertices': np.array([2, 3, 4, 5]), 'cells': (vert2, cross), 'grading': (1, 1)}
+        'nozzle': {'vertices': np.array([0, 1, 2, 5]), 'cells': (cross, vert1), 'grading': (4, 1)},
+        'opening': {'vertices': np.array([2, 3, 4, 5]), 'cells': (cross, vert2), 'grading': (1, 1)}
     }
 
     vertices = [
@@ -80,7 +80,7 @@ blocks
 (''')
         for ind, (block, info) in enumerate(block_dict.items()):
             f.write(f'\t// Block {ind}\n')
-            verts = info["vertices"]
+            verts = info["vertices"].copy()
             if ind == 0:
                 verts[-2], verts[-1] = verts[-1], verts[-2]
                 verts[0], verts[1] = verts[1], verts[0]
@@ -95,11 +95,21 @@ edges
     spline 1 2
     (
 ''')
-        nozzle = np.array([(x_noz := x_nozz[1:-1]), y_nozz[1:-1], np.ones(len(x_noz)) * -5.00000e-02])
-        f.write(str(nozzle.T)[1:-1].replace('[', '\t\t(').replace(']', ')'))
-        f.write('\n\t)\n\n\tspline 7 8 \n\t(\n')
-        nozzle[2, :] *= -1
-        f.write(str(nozzle.T)[1:-1].replace('[', '\t\t(').replace(']', ')'))
+  # compute rotated y and z for the spline
+        x_coords = x_nozz[1:-1]
+        y_coords = y_nozz[1:-1]
+        y_rot    = y_coords * np.cos(theta/2)
+        z_lower  = -y_coords * np.sin(theta/2)
+        z_upper  = y_coords * np.sin(theta/2)
+
+        for x, y_r, z in zip(x_coords, y_rot, z_lower):
+            f.write(f'\t\t({x:.8e} {y_r:.8e} {z:.8e})\n')
+        f.write('\t\t)\n\n')
+
+        # write upper spline
+        f.write('\t\tspline 7 8\n\t\t(\n')
+        for x, y_r, z in zip(x_coords, y_rot, z_upper):
+            f.write(f'\t\t({x:.8e} {y_r:.8e} {z:.8e})\n')
         f.write('\n\t)\n);\n\n')
         with open('faces.txt', 'r') as faces:
             f.write(faces.read())
