@@ -143,7 +143,7 @@ blocks
             top = [t if t < 6 else t-5 for t in top]
 
             f.write(f"\thex ({' '.join(map(str, bottom))} {' '.join(map(str, top))}) "
-                    f"({(ns := info['cells'])[0]} {ns[1]} 1) "
+                    f"({(ns := info['cells'])[0]} 1 {ns[1]}) "
                     f"simpleGrading ({(gs := info['grading'])[0]} {gs[1]} 1)\n\n")
             
         f.write('''
@@ -172,15 +172,7 @@ edges
         f.write('\n\t)\n);\n\n')
         with open('faces.txt', 'r') as faces:
             f.write(faces.read())
-    # bottom
-    # {
-    #     type symmetryPlane;
-    #     faces
-    #     (
-    #         (0 5 11 6)
-    #         (5 4 10 11)
-    #     );
-    # }
+
 
 def main():
     mesh()
