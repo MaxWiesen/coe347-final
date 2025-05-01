@@ -71,9 +71,9 @@ convertToMeters 1.0;
 vertices
 (\n''')
         for ind, (x, y) in enumerate(vertices):
-            f.write(f'\t({x:.16e} {y * np.cos(theta / 2):.16e} {-.05 * np.sin(theta / 2):.16e}) // {ind}\n')
+            f.write(f'\t({x:.16e} {y * np.cos(theta / 2):.16e} {-y * np.sin(theta / 2):.16e}) // {ind}\n')
         for ind, (x, y) in enumerate(vertices):
-            f.write(f'\t({x:.16e} {y * np.cos(theta / 2):.16e}  {.05 * np.sin(theta / 2):.16e}) // {ind + 6}\n')
+            f.write(f'\t({x:.16e} {y * np.cos(theta / 2):.16e}  {y * np.sin(theta / 2):.16e}) // {ind + 6}\n')
         f.write(''');
 
 blocks
