@@ -5,6 +5,7 @@ def mesh():
     x_extent = 100
     config = 'right'
     x_grid_max = 3
+    theta = 5 * np.pi / 180
 
     fig, ax = plt.subplots()
     x_nozz = np.array([0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08,
@@ -52,7 +53,7 @@ def mesh():
         (x_grid_max, y_nozz.max()),     # 3
         (x_grid_max, 0),                # 4
         (x_nozz.max(), 0),              # 5
-    ]
+    ] 
 
     with open('blockMeshDict', 'w') as f:
         f.write(f'// COE 347 - FINAL PROJECT MESH ({config})')
@@ -70,9 +71,9 @@ convertToMeters 1.0;
 vertices
 (\n''')
         for ind, (x, y) in enumerate(vertices):
-            f.write(f'\t({x:.16e} {y:.16e} -5.0000000000000003e-02) // {ind}\n')
+            f.write(f'\t({x:.16e} {y * np.cos(theta / 2):.16e} {-.05 * np.sin(theta / 2):.16e}) // {ind}\n')
         for ind, (x, y) in enumerate(vertices):
-            f.write(f'\t({x:.16e} {y:.16e}  5.0000000000000003e-02) // {ind + 6}\n')
+            f.write(f'\t({x:.16e} {y * np.cos(theta / 2):.16e}  {.05 * np.sin(theta / 2):.16e}) // {ind + 6}\n')
         f.write(''');
 
 blocks
