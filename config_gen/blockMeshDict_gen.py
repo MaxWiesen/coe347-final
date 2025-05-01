@@ -46,7 +46,7 @@ def mesh():
     cross = round(y_nozz[0] / y_nozz.max() * sf)
 
     block_dict = {
-        'nozzle': {'vertices': np.array([0, 1, 2, 5]), 'cells': (cross, vert1), 'grading': (4, 1)},
+        'nozzle': {'vertices': np.array([0, 1, 2, 5]), 'cells': (cross, vert1), 'grading': (1, 1)},
         'opening': {'vertices': np.array([2, 3, 4, 5]), 'cells': (cross, vert2), 'grading': (1, 1)}
     }
 
