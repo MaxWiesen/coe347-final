@@ -4,10 +4,12 @@ import matplotlib.pyplot as plt
 def mesh():
     x_extent = 100
     config = 'right'
-    x_grid_max = 3
+    x_grid_max = 10
     theta = 5 * np.pi / 180
 
-    fig, ax = plt.subplots()
+    # Create the figure at the start
+    fig, ax = plt.subplots(figsize=(10, 5))
+
     x_nozz = np.array([0.0, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08,
           0.09, 0.099, 0.109, 0.119, 0.129, 0.139, 2.452, 3.445, 4.506,
           5.732, 7.189, 8.949, 11.096, 13.734, 17.0, 21.066, 26.161,
@@ -24,28 +26,21 @@ def mesh():
         x_nozz = np.append(x_nozz, 2 * x_nozz[-1] - x_nozz[-2] + 4.5)
         y_nozz = np.append(y_nozz, 13.354)
 
-    # Scale coordinates to maintain proper proportions
-    x_scale = x_extent / x_nozz.max()
-    y_scale = 1.0  # Keep original y-scaling
-    
+    x_scale = x_grid_max * (x_nozz.max() / x_extent) / x_nozz.max()
     x_nozz = x_nozz * x_scale
-    y_nozz = y_nozz * y_scale
     
-    # Ensure proper grid spacing
-    sf = 100  # Reduced scale factor for more manageable cell sizes
+    # Keep y coordinates as is to preserve exact shape
     L_nozz = x_nozz[-1]
     L_open = x_grid_max - L_nozz
-
-    total_cells = 2*sf  # Reduced total cells for better stability
+    
+    # Ensure proper grid spacing
+    sf = 100  # Scale factor for cell counts
+    total_cells = 2*sf  # Total cells in x-direction
     vert1 = round(L_nozz / x_grid_max * total_cells)
     vert2 = total_cells - vert1
-    cross = round(sf/2)  # Fixed cross-sectional cells for better stability
+    cross = round(sf/2)  # Cells in y-direction
     
-    block_dict = {
-        'nozzle': {'vertices': np.array([0, 1, 2, 5]), 'cells': (cross, vert1), 'grading': (1, 1)},
-        'opening': {'vertices': np.array([2, 3, 4, 5]), 'cells': (cross, vert2), 'grading': (1, 1)}
-    }
-
+    # Define vertices in counter-clockwise order for proper face orientation
     vertices = [
         (0, 0),                         # 0
         (0, y_nozz[0]),                 # 1
@@ -54,12 +49,63 @@ def mesh():
         (x_grid_max, 0),               # 4
         (L_nozz, 0),                   # 5
     ]
-
-    ax.scatter(x_nozz, y_nozz)
-    ax.grid()
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
+    
+    # Plot the nozzle shape and vertices
+    ax.plot(x_nozz, y_nozz, 'b-', label='Nozzle Profile')
+    ax.scatter([v[0] for v in vertices], [v[1] for v in vertices], color='red', label='Mesh Vertices')
+    
+    # Create and plot mesh grading
+    # Nozzle block
+    x_nozz_mesh = np.linspace(0, L_nozz, vert1)
+    y_nozz_mesh = np.linspace(0, y_nozz[0], cross)  # Bottom to throat
+    y_nozz_top = np.interp(x_nozz_mesh, x_nozz, y_nozz)  # Interpolate top surface
+    
+    # Opening block
+    x_open_mesh = np.linspace(L_nozz, x_grid_max, vert2)
+    y_open_mesh = np.linspace(0, y_nozz[-1], cross)
+    
+    # Plot mesh points for both blocks
+    for x in x_nozz_mesh:
+        y_top = np.interp(x, x_nozz, y_nozz)
+        y_points = np.linspace(0, y_top, cross)
+        ax.plot([x]*len(y_points), y_points, 'k.', markersize=1, alpha=0.3)
+        
+    for x in x_open_mesh:
+        y_points = np.linspace(0, y_nozz[-1], cross)
+        ax.plot([x]*len(y_points), y_points, 'k.', markersize=1, alpha=0.3)
+    
+    # Plot horizontal mesh lines
+    for i in range(cross):
+        # Nozzle block
+        y_ratio = i / (cross - 1)
+        y_points = y_ratio * y_nozz_top
+        ax.plot(x_nozz_mesh, y_points, 'k-', linewidth=0.5, alpha=0.3)
+        
+        # Opening block
+        y = y_open_mesh[i]
+        ax.plot(x_open_mesh, [y]*len(x_open_mesh), 'k-', linewidth=0.5, alpha=0.3)
+    
+    ax.grid(True)
+    ax.set_xlabel('X coordinate')
+    ax.set_ylabel('Y coordinate')
+    ax.set_title('Nozzle Profile with Mesh Vertices and Grading')
+    ax.legend(loc='upper left')
+    ax.set_xlim(-1, x_grid_max + 1)
     plt.show()
+    
+    # Redefine blocks with proper vertex ordering
+    block_dict = {
+        'nozzle': {
+            'vertices': np.array([0, 1, 2, 5]),  # Counter-clockwise bottom face
+            'cells': (cross, vert1),
+            'grading': (1, 1)
+        },
+        'opening': {
+            'vertices': np.array([5, 2, 3, 4]),  # Counter-clockwise bottom face
+            'cells': (cross, vert2),
+            'grading': (1, 1)
+        }
+    }
 
     with open('blockMeshDict', 'w') as f:
         f.write(f'// COE 347 - FINAL PROJECT MESH ({config})')
@@ -76,23 +122,27 @@ convertToMeters 1.0;
 
 vertices
 (\n''')
+        # Write bottom vertices
         for ind, (x, y) in enumerate(vertices):
             f.write(f'\t({x:.16e} {y * np.cos(theta / 2):.16e} {-y * np.sin(theta / 2):.16e}) // {ind}\n')
+        # Write top vertices
         for ind, (x, y) in enumerate(vertices):
-            f.write(f'\t({x:.16e} {y * np.cos(theta / 2):.16e}  {y * np.sin(theta / 2):.16e}) // {ind + 6}\n')
+            f.write(f'\t({x:.16e} {y * np.cos(theta / 2):.16e} {y * np.sin(theta / 2):.16e}) // {ind + 6}\n')
         f.write(''');
 
 blocks
 (''')
         for ind, (block, info) in enumerate(block_dict.items()):
             f.write(f'\t// Block {ind}\n')
-            verts = info["vertices"].copy()
-            if ind == 0:
-                verts[-2], verts[-1] = verts[-1], verts[-2]
-                verts[0], verts[1] = verts[1], verts[0]
-            elif ind == 1:
-                verts[1], verts[-1] = verts[-1], verts[1]
-            f.write(f'\thex ({str(verts)[1:-1]} {str(verts + 6)[1:-1]}) ({(ns := info["cells"])[0]} {ns[1]} 1) simpleGrading ( {(gs := info["grading"])[0]} {gs[1]} 1)\n\n')
+            verts = info["vertices"]
+            # Create hex block with proper vertex ordering
+            bottom_face = verts
+            top_face = verts + 6
+            
+            # Write vertices in proper order for hex block
+            vertex_str = f'({bottom_face[0]} {bottom_face[1]} {bottom_face[2]} {bottom_face[3]} {top_face[0]} {top_face[1]} {top_face[2]} {top_face[3]})'
+            f.write(f'\thex {vertex_str} ({(ns := info["cells"])[0]} {ns[1]} 1) simpleGrading ({(gs := info["grading"])[0]} {gs[1]} 1)\n\n')
+        
         f.write('''
 );
 
