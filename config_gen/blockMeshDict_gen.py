@@ -142,7 +142,7 @@ blocks
             bottom = [b if b < 6 else b-5 for b in bottom]
             top = [t if t < 6 else t-5 for t in top]
 
-            f.write(f"\thex ({' '.join(map(str, bottom))}) ({' '.join(map(str, top))}) "
+            f.write(f"\thex ({' '.join(map(str, bottom))} {' '.join(map(str, top))}) "
                     f"({(ns := info['cells'])[0]} {ns[1]} 1) "
                     f"simpleGrading ({(gs := info['grading'])[0]} {gs[1]} 1)\n\n")
             
