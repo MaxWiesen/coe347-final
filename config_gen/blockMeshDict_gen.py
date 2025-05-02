@@ -44,7 +44,7 @@ def mesh():
     vertices = [
         (0, 0),                         # 0: bottom left
         (0, y_nozz[0]),                 # 1: top left
-        (L_nozz, y_nozz[-1]),          # 2: top at nozzle exit
+        (L_nozz, y_nozz[-1]),           # 2: top at nozzle exit
         (x_grid_max, y_nozz[-1]),       # 3: top right
         (x_grid_max, 0),                # 4: bottom right
         (L_nozz, 0),                    # 5: bottom at nozzle exit
@@ -95,12 +95,12 @@ def mesh():
     
     block_dict = {
     'nozzle': {
-        'vertices': np.array([[0, 5, 5, 0], [1, 2, 7, 6]]),
+        'vertices': np.array([[0, 5, 5, 0], [6, 7, 2, 1]]),
         'cells':    (vert1, cross),
         'grading':  (1, 1)
     },
     'opening': {
-        'vertices': np.array([[5, 4, 4, 5], [2, 3, 8, 7]]),
+        'vertices': np.array([[5, 4, 4, 5], [7, 8, 3, 2]]),
         'cells':    (vert2, cross),
         'grading':  (1, 1)
     }
