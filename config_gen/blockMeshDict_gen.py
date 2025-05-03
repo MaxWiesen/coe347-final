@@ -314,9 +314,10 @@ def single_graph(block_dict, L_nozz, y_nozz):
     with open('singleGraph.txt', 'r') as f:
         content = f.readlines()
     nozz_dx = 1 / (block_dict['nozzle']['cells'][0] + block_dict['opening']['cells'][0]) / 2
+    dy = y_nozz[-1] / block_dict['nozzle']['cells'][1]
     file_out_name = f'{dir_name}/singleGraph'
     with open(file_out_name, 'w') as f:
-        f.write(''.join(content).replace('x1', str(L_nozz - nozz_dx)).replace('x2', str(L_nozz + nozz_dx)).replace('y1', str(y_nozz[-1])))
+        f.write(''.join(content).replace('x1', str(L_nozz - nozz_dx)).replace('x2', str(L_nozz + nozz_dx)).replace('y1', str(y_nozz[-1])).replace('y2', str(dy)))
 
 
 def main():

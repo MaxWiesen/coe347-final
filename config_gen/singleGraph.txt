@@ -41,6 +41,13 @@ sets
         start   (x2 0 0);
         end     (x2 y1 0);
     }
+    axial
+    {
+        type    lineCell;
+        axis    xyz;
+        start   (0 y2 0);
+        end     (0.999 y2 0);
+    }
 );
 
 fields          ( p U );
