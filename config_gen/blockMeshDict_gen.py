@@ -101,10 +101,10 @@ def plot_mesh(x_nozz, y_nozz, x_grid_max, sf, show_reflection=False):
     plt.show()
 
 def mesh():
-    post_nozzle_ratio = 0.3  # Length of extension block as ratio of nozzle length
+    post_nozzle_ratio = 0.49365  # Length of extension block as ratio of nozzle length
     theta = 5 * np.pi / 180
-    expansion_scale = 1.2  # 1.0 is original, >1 increases expansion ratio, <1 decreases it
-    sf = 150  # Scale factor for cell counts
+    expansion_scale = 1.  # 1.0 is original, >1 increases expansion ratio, <1 decreases it
+    sf = 317  # Scale factor for cell counts
 
     # Create figure with three subplots
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -127,7 +127,7 @@ def mesh():
     y_nozz[throat_idx:] = throat_y + (y_nozz_base[throat_idx:] - throat_y) * expansion_scale
     
     # Calculate and print expansion ratio (exit area / throat area)
-    expansion_ratio = y_nozz[-1] / throat_y
+    expansion_ratio = (y_nozz[-1] / throat_y) ** 2
     print(f"\nNozzle Properties:")
     print(f"Throat height: {throat_y:.6f}")
     print(f"Exit height: {y_nozz[-1]:.6f}")
@@ -220,17 +220,17 @@ def mesh():
     plt.show()
     
     block_dict = {
-    'nozzle': {
-        'vertices': np.array([[0, 5, 5, 0], [6, 7, 2, 1]]),
-        'cells':    (vert1, cross),
-        'grading':  (1, 1)
-    },
-    'opening': {
-        'vertices': np.array([[5, 4, 4, 5], [7, 8, 3, 2]]),
-        'cells':    (vert2, cross),
-        'grading':  (1, 1)
+        'nozzle': {
+            'vertices': np.array([[0, 5, 5, 0], [6, 7, 2, 1]]),
+            'cells':    (vert1, cross),
+            'grading':  (1, 1)
+        },
+        'opening': {
+            'vertices': np.array([[5, 4, 4, 5], [7, 8, 3, 2]]),
+            'cells':    (vert2, cross),
+            'grading':  (1, 1)
+        }
     }
-}
     
     with open('blockMeshDict', 'w') as f:
         f.write(f'// COE 347 - FINAL PROJECT MESH (expansion scale: {expansion_scale})')
@@ -298,10 +298,20 @@ edges
         f.write('\n\t)\n);\n\n')
         with open('faces.txt', 'r') as faces:
             f.write(faces.read())
+    return block_dict, L_nozz, y_nozz
+
+
+def single_graph(block_dict, L_nozz, y_nozz):
+    with open('singleGraph.txt', 'r') as f:
+        content = f.readlines()
+    nozz_dx = 1 / (block_dict['nozzle']['cells'][0] + block_dict['opening']['cells'][0]) / 2
+    with open('singleGraph', 'w') as f:
+        f.write('\n'.join(content).replace('x1', str(L_nozz - nozz_dx)).replace('x2', str(L_nozz + nozz_dx)).replace('y1', str(y_nozz[-1])))
 
 
 def main():
-    mesh()
+    block_dict, L_nozz, y_nozz = mesh()
+    single_graph(block_dict, L_nozz, y_nozz)
 
 
 if __name__ == '__main__':
