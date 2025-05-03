@@ -1,5 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import os
+
+
+##### CONFIG #####
+mesh_number = 3
+expansion_scale = 1.  # 1.0 is original, >1 increases expansion ratio, <1 decreases it
+sf = round(np.sqrt(100000))  # Scale factor for cell counts
+
+dir_name = f'mesh_{mesh_number}'
+os.makedirs(dir_name, exist_ok=True)
+
 
 def plot_mesh(x_nozz, y_nozz, x_grid_max, sf, show_reflection=False):
     """
@@ -98,13 +109,11 @@ def plot_mesh(x_nozz, y_nozz, x_grid_max, sf, show_reflection=False):
             bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
     
     plt.tight_layout()
-    plt.show()
+    plt.savefig(f'{dir_name}/plot2.png')
 
 def mesh():
     post_nozzle_ratio = 0.49365  # Length of extension block as ratio of nozzle length
     theta = 5 * np.pi / 180
-    expansion_scale = 1.  # 1.0 is original, >1 increases expansion ratio, <1 decreases it
-    sf = 317  # Scale factor for cell counts
 
     # Create figure with three subplots
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -149,7 +158,7 @@ def mesh():
     ax.legend(loc='upper left')
     ax.axis('equal')
     plt.tight_layout()
-    plt.show()
+    plt.savefig(f'{dir_name}/plot1.png')
 
     # Calculate domain dimensions for mesh generation
     L_nozz = x_nozz[-1]
@@ -217,7 +226,7 @@ def mesh():
     ax.set_title('Nozzle Profile with Mesh Vertices and Grading')
     ax.legend(loc='upper left')
     ax.axis('equal')
-    plt.show()
+    plt.savefig(f'{dir_name}/plot3.png')
     
     block_dict = {
         'nozzle': {
@@ -231,8 +240,8 @@ def mesh():
             'grading':  (1, 1)
         }
     }
-    
-    with open('blockMeshDict', 'w') as f:
+    file_out_name = f'{dir_name}/blockMeshDict'
+    with open(file_out_name, 'w') as f:
         f.write(f'// COE 347 - FINAL PROJECT MESH (expansion scale: {expansion_scale})')
         f.write('''\n\n
 FoamFile
@@ -305,8 +314,9 @@ def single_graph(block_dict, L_nozz, y_nozz):
     with open('singleGraph.txt', 'r') as f:
         content = f.readlines()
     nozz_dx = 1 / (block_dict['nozzle']['cells'][0] + block_dict['opening']['cells'][0]) / 2
-    with open('singleGraph', 'w') as f:
-        f.write('\n'.join(content).replace('x1', str(L_nozz - nozz_dx)).replace('x2', str(L_nozz + nozz_dx)).replace('y1', str(y_nozz[-1])))
+    file_out_name = f'{dir_name}/singleGraph'
+    with open(file_out_name, 'w') as f:
+        f.write(''.join(content).replace('x1', str(L_nozz - nozz_dx)).replace('x2', str(L_nozz + nozz_dx)).replace('y1', str(y_nozz[-1])))
 
 
 def main():
