@@ -5,7 +5,7 @@ boundary
         type patch;
         faces
         (
-            (1 7 6 0)  // 0
+            (0 6 1 0)
         );
     }
     outlet
@@ -13,7 +13,7 @@ boundary
         type patch;
         faces
         (
-            (3 9 10 4)  // 3
+            (4 8 3 4)   
         );
     }
     nozzleCeiling
@@ -21,7 +21,7 @@ boundary
         type wall;
         faces
         (
-            (1 7 8 2)  // 1
+            (6 7 2 1)
         );
     }
     ambientCeiling
@@ -29,16 +29,7 @@ boundary
         type patch;
         faces
         (
-            (2 8 9 3)  // 2
-        );
-    }
-    bottom
-    {
-        type symmetryPlane;
-        faces
-        (
-            (0 6 11 5)  // 5
-            (5 11 10 4)  // 4
+            (7 8 3 2)
         );
     }
     front
@@ -46,8 +37,8 @@ boundary
         type wedge;
         faces
         (
-            (0 1 2 5)  // 6
-            (5 2 3 4)  // 7
+            (0 5 7 6)    
+            (5 4 8 7)    
         );
     }
     back
@@ -55,8 +46,12 @@ boundary
         type wedge;
         faces
         (
-            (6 7 8 11)  // 8
-            (11 8 9 10)  // 9
+            (0 5 2 1)
+            (5 4 3 2)  
         );
     }
+);
+
+mergePatchPairs
+(
 );
