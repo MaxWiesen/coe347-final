@@ -272,11 +272,6 @@ blocks
             bottom = info['vertices'][0, :]
             top    = info['vertices'][1, :]
 
-            # Update vertex indices to account for removed duplicates
-            # For vertices > 6, subtract 5 since we removed vertices 6, 9, 10, and 11
-            bottom = [b if b < 6 else b-5 for b in bottom]
-            top = [t if t < 6 else t-5 for t in top]
-
             f.write(f"\thex ({' '.join(map(str, bottom))} {' '.join(map(str, top))}) "
                     f"({(ns := info['cells'])[0]} 1 {ns[1]}) "
                     f"simpleGrading ({(gs := info['grading'])[0]} {gs[1]} 1)\n\n")
