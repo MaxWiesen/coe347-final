@@ -6,6 +6,7 @@ import os
 ##### CONFIG #####
 mesh_number = 3
 expansion_scale = 1.  # 1.0 is original, >1 increases expansion ratio, <1 decreases it
+width_scale = 5.  # Scale factor for all dimensions (1.0 is original size)
 sf = round(np.sqrt(100000))  # Scale factor for cell counts
 
 dir_name = f'mesh_{mesh_number}'
@@ -127,6 +128,10 @@ def mesh():
                     0.0508, 0.0510, 0.0512, 0.0513, 0.0858, 0.0962, 0.1051, 0.1133, 0.1212, 0.1290, 0.1365,
                     0.1438, 0.1508, 0.1575, 0.1636, 0.1691, 0.1737, 0.1771, 0.1790])
 
+    # Apply width scaling to base coordinates
+    x_nozz = x_nozz * width_scale
+    y_nozz_base = y_nozz_base * width_scale
+
     # Find throat index (minimum y value in first few points)
     throat_idx = np.argmin(y_nozz_base[:15])
     throat_y = y_nozz_base[throat_idx]
@@ -242,7 +247,7 @@ def mesh():
     }
     file_out_name = f'{dir_name}/blockMeshDict'
     with open(file_out_name, 'w') as f:
-        f.write(f'// COE 347 - FINAL PROJECT MESH (expansion scale: {expansion_scale})')
+        f.write(f'// COE 347 - FINAL PROJECT MESH (expansion scale: {expansion_scale}, width scale: {width_scale})')
         f.write('''\n\n
 FoamFile
 {
@@ -302,22 +307,22 @@ edges
         f.write('\n\t)\n);\n\n')
         with open('faces.txt', 'r') as faces:
             f.write(faces.read())
-    return block_dict, L_nozz, y_nozz
+    return block_dict, L_nozz, y_nozz, x_grid_max
 
 
-def single_graph(block_dict, L_nozz, y_nozz):
+def single_graph(block_dict, L_nozz, y_nozz, x_grid_max):
     with open('singleGraph.txt', 'r') as f:
         content = f.readlines()
     nozz_dx = 1 / (block_dict['nozzle']['cells'][0] + block_dict['opening']['cells'][0]) / 2
     dy = y_nozz[-1] / block_dict['nozzle']['cells'][1]
     file_out_name = f'{dir_name}/singleGraph'
     with open(file_out_name, 'w') as f:
-        f.write(''.join(content).replace('x1', str(L_nozz - nozz_dx)).replace('x2', str(L_nozz + nozz_dx)).replace('y1', str(y_nozz[-1])).replace('y2', str(dy)))
+        f.write(''.join(content).replace('x1', str(L_nozz - nozz_dx)).replace('x2', str(L_nozz + nozz_dx)).replace('x3', str(x_grid_max)).replace('y1', str(y_nozz[-1])).replace('y2', str(dy)))
 
 
 def main():
-    block_dict, L_nozz, y_nozz = mesh()
-    single_graph(block_dict, L_nozz, y_nozz)
+    block_dict, L_nozz, y_nozz, x_grid_max = mesh()
+    single_graph(block_dict, L_nozz, y_nozz, x_grid_max)
 
 
 if __name__ == '__main__':

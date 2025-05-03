@@ -46,7 +46,7 @@ sets
         type    lineCell;
         axis    xyz;
         start   (0 y2 0);
-        end     (0.999 y2 0);
+        end     (x3 y2 0);
     }
 );
 
